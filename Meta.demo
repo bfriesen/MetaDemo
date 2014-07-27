@@ -3,9 +3,10 @@
   <TargetApplicationTitle>ConsoleApplication11 - Microsoft Visual Studio</TargetApplicationTitle>
   <InitialCode />
   <Step Number="1">
-    <GhostKeyboardData>// Brian Friesen
+    <GhostKeyboardData>[DeleteAll]// Brian Friesen
 
 // QL.IT.AD.COE.Core.AppCore
+// C# MVP
 
 // brianfriesen@quickenloans.com
 // @brianfriesen
@@ -20,6 +21,65 @@
 -Who I am\par
 -What team I'm on\par
 -Other stuff?\par
+}
+</Notes>
+  </Step>
+  <Step Number="2">
+    <GhostKeyboardData>[DeleteAll]// I'm So Meta, Even This tAlk (ISMETA)
+// http://xkcd.com/917/</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 I'm So Meta, Even This tAlk (ISMETA)\par
+\par
+Talk a bit about xkcd. If internet connection is available, go to the link.\par
+}
+</Notes>
+  </Step>
+  <Step Number="3">
+    <GhostKeyboardData>[DeleteAll]// So what is metaprogramming anyway?[Pause 3]</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fmodern\fprq1\fcharset0 Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+\viewkind4\uc1\pard\f0\fs24 So what is metaprogramming anyway?\f1\par
+}
+</Notes>
+  </Step>
+  <Step Number="4">
+    <GhostKeyboardData>[DeleteAll]What is metaprogramming good for?</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 What is metaprogramming good for?\par
+\par
+TODO: list "when you need to..." examples\par
+}
+</Notes>
+  </Step>
+  <Step Number="5">
+    <GhostKeyboardData>[DeleteAll]Examples of metaprogramming</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24\par
+}
+</Notes>
+  </Step>
+  <Step Number="6">
+    <GhostKeyboardData>[DeleteAll]// Concerns</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Consolas;}}
+\viewkind4\uc1\pard\f0\fs24 [Pause 5]\par
+//\par
+// Isn't it dangerous?[Pause 1] Or slow?[Pause 1]\par
+// It must be insanely difficult to understand.[Pause 1]\par
+}
+</Notes>
+  </Step>
+  <Step Number="7">
+    <GhostKeyboardData>[DeleteAll]// Scenario</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Scenario\par
+\par
+// TODO: describe the message routing scenario\par
+}
+</Notes>
+  </Step>
+  <Step Number="8">
+    <GhostKeyboardData>[`Hello, world!`]</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Ok, so let's start out with our existing implementation.\par
 }
 </Notes>
   </Step>
