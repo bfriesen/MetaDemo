@@ -1,0 +1,13 @@
+﻿using MetaDemo.Messages;
+using System;
+
+namespace MetaDemo.MessageHandlers
+{
+    public class FooHandler
+    {
+        public void Handle(FooMessage message)
+        {
+            Console.WriteLine("HANDLED: FooHandler handled FooMessage");
+        }
+    }
+}
