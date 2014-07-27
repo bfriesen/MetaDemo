@@ -44,6 +44,9 @@
     <Compile Include="MessageHandlers\BazHandler.cs" />
     <Compile Include="MessageHandlers\BarHandler.cs" />
     <Compile Include="MessageHandlers\FooHandler.cs" />
+    <Compile Include="MessageHandlers\IMessageHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MessageRouter.cs" />
     <Compile Include="Messages\BarMessage.cs" />
     <Compile Include="Messages\BazMessage.cs" />

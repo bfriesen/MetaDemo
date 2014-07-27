@@ -3,7 +3,7 @@ using System;
 
 namespace MetaDemo.MessageHandlers
 {
-    public class BazHandler
+    public class BazHandler : IMessageHandler<BazMessage>
     {
         public void Handle(BazMessage message)
         {
