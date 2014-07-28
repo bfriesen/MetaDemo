@@ -474,4 +474,587 @@ It is going to use reflection twice.\par
 }
 </Notes>
   </Step>
+  <Step Number="14">
+    <GhostKeyboardData>[GotoLine 58][End]
+
+private void HandleMessage(object handler, object message)
+{
+[Fast]// Use reflection to find the correct method to invoke.[/Fast][Pause 1]
+var handleMethod =
+typeof(IMessageHandler&lt;&gt;).MakeGenericType(message.GetType())
+    .GetMethods()
+.Single();
+
+[Fast]// Invoke the Handle method using the MethodInfo reflection API...[/Fast][Pause 1]
+handleMethod.Invoke(handler, new object[] { message });</GhostKeyboardData>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 And finally, the HandleMessage method.\par
+\par
+This should complete our reflection-based message router. Let's see if it works...\par
+\par
+(run application in visual studio)\par
+}
+</Notes>
+  </Step>
+  <Step Number="15">
+    <GhostKeyboardData>[SelectText 21,17 2,0][Pause 2][CommentLines][Pause 2][SelectText 31,9 39,0][Pause 2][CommentLines]</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red0\green128\blue0;\red163\green21\blue21;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  MetaDemo.MessageHandlers;\par
+\cf1 using\cf3  MetaDemo.Messages;\par
+\cf1 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Reflection;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 class\cf3  \cf4 MessageRouter\cf3\par
+    \{\par
+        \cf1 public\cf3  \cf1 void\cf3  Route(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 try\cf3\par
+            \{\par
+                \cf5 // For any given message type:\cf3\par
+                \cf5 //   1) Deserialize a message object.\cf3\par
+                \cf5 //   2) Create a message handler object.\cf3\par
+                \cf5 //   3) Pass the message to the message handler's Handle method.\cf3\par
+                \par
+                \cf1 var\cf3  messageType = GetMessageType(xmlMessage);\par
+\par
+                \cf5 //var message = Deserialize(messageType, xmlMessage);\cf3\par
+                \cf5 //var handler = CreateMessageHandler(message);\cf3\par
+                \cf5 //HandleMessage(handler, message);\cf3\par
+            \}\par
+            \cf1 catch\cf3  (\cf4 Exception\cf3  ex)\par
+            \{\par
+                LogError(ex.Message);\par
+            \}\par
+        \}\par
+\par
+        \cf5 //private object Deserialize(string messageType, string xmlMessage)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // This is our first bit of reflection: scanning an assembly for types that match a criteria\cf3\par
+        \cf5 //    var type =\cf3\par
+        \cf5 //        Assembly.GetExecutingAssembly().GetTypes()\cf3\par
+        \cf5 //            .SingleOrDefault(t =&gt; t.Namespace == "MetaDemo.Messages" &amp;&amp; t.Name == messageType);\cf3\par
+\par
+        \cf5 //    return Deserialize(type, xmlMessage);\cf3\par
+        \cf5 //\}\cf3\par
+\par
+        \cf5 //private object CreateMessageHandler(object message)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // More assembly scanning...\cf3\par
+        \cf5 //    var type = Assembly.GetExecutingAssembly().GetTypes()\cf3\par
+        \cf5 //        .SingleOrDefault(\cf3\par
+        \cf5 //            t =&gt;\cf3\par
+        \cf5 //            t.Namespace == "MetaDemo.MessageHandlers"\cf3\par
+        \cf5 //            &amp;&amp; !t.IsAbstract\cf3\par
+        \cf5 //            &amp;&amp; t.GetInterfaces().Any(\cf3\par
+        \cf5 //                i =&gt;\cf3\par
+        \cf5 //                i.IsGenericType\cf3\par
+        \cf5 //                &amp;&amp; i.GetGenericTypeDefinition() == typeof(IMessageHandler&lt;&gt;)\cf3\par
+        \cf5 //                &amp;&amp; i.GetGenericArguments()[0] == message.GetType()));\cf3\par
+\par
+        \cf5 //    // More reflection: the Activator class.\cf3\par
+        \cf5 //    var handler = Activator.CreateInstance(type);\cf3\par
+        \cf5 //    return handler;\cf3\par
+        \cf5 //\}\cf3\par
+\par
+        \cf5 //private void HandleMessage(object handler, object message)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // Use reflection to find the correct method to invoke.\cf3\par
+        \cf5 //    var handleMethod =\cf3\par
+        \cf5 //        typeof(IMessageHandler&lt;&gt;).MakeGenericType(message.GetType())\cf3\par
+        \cf5 //            .GetMethods()\cf3\par
+        \cf5 //            .Single();\cf3\par
+\par
+        \cf5 //    // Invoke the Handle method using the MethodInfo reflection API...\cf3\par
+        \cf5 //    handleMethod.Invoke(handler, new object[] \{ message \});\cf3\par
+        \cf5 //\}\cf3\par
+\par
+\cf1         #region\cf3  Plumbing (i.e. not relevant to the talk)\par
+\par
+        \cf1 private\cf3  \cf1 string\cf3  GetMessageType(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  doc = System.Xml.Linq.\cf4 XDocument\cf3 .Parse(xmlMessage);\par
+            \cf1 return\cf3  doc.Root.Name.LocalName;\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 object\cf3  Deserialize(\cf4 Type\cf3  type, \cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  serializer = \cf1 new\cf3  System.Xml.Serialization.\cf4 XmlSerializer\cf3 (type);\par
+            \cf1 using\cf3  (\cf1 var\cf3  reader = \cf1 new\cf3  System.IO.\cf4 StringReader\cf3 (xmlMessage))\par
+            \{\par
+                \cf1 return\cf3  serializer.Deserialize(reader);\par
+            \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 void\cf3  LogError(\cf1 string\cf3  message)\par
+        \{\par
+            \cf4 Console\cf3 .WriteLine(\cf6 "ERROR: "\cf3  + message);\par
+        \}\par
+\par
+\cf1         #endregion\cf3\par
+    \}\par
+\}\par
+\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 But... this is a very slow implementation.\par
+\par
+For ever message, we're scanning the assembly each time we receive a message. Twice. And we're searching for the Handle method based on an implementation of IMessageHandler&lt;T&gt;.\par
+\par
+There is one thing to keep in mind when metaprogramming: caching.\par
+\par
+Let's comment out our existing implementation... (Execute) ...next step.\par
+}
+</Notes>
+  </Step>
+  <Step Number="16">
+    <GhostKeyboardData>[GotoLine 3][End][Pause 1]
+using System.Collections.Concurrent;[Pause 2][GotoLine 11][End][Pause 1]
+
+[Up]private readonly ConcurrentDictionary&lt;string, Action&lt;string&gt;&gt; _handleFunctions =
+new ConcurrentDictionary&lt;string, Action&lt;string&gt;&gt;();[GotoLine 25][End]
+
+[Up][Fast]// Ask our dictionary for the handle function for this message type.
+// If none if found, get a handle function from the GetHandleFunction method.[/Fast]
+var handle = _handleFunctions.GetOrAdd([Wait]messageType, [Wait]mt =&gt; CreateHandleFunction(mt, xmlMessage));
+
+[Wait][Fast]// Call the function retrieved from the dictionary.[/Fast]
+handle(xmlMessage);</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red0\green128\blue0;\red163\green21\blue21;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  MetaDemo.MessageHandlers;\par
+\cf1 using\cf3  MetaDemo.Messages;\par
+\cf1 using\cf3  System;\par
+\cf1 using\cf3  System.Collections.Concurrent;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Reflection;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 class\cf3  \cf4 MessageRouter\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf1 string\cf3 , \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt;&gt; _handleFunctions =\par
+            \cf1 new\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf1 string\cf3 , \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt;&gt;();\par
+\par
+        \cf1 public\cf3  \cf1 void\cf3  Route(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 try\cf3\par
+            \{\par
+                \cf5 // For any given message type:\cf3\par
+                \cf5 //   1) Deserialize a message object.\cf3\par
+                \cf5 //   2) Create a message handler object.\cf3\par
+                \cf5 //   3) Pass the message to the message handler's Handle method.\cf3\par
+                \par
+                \cf1 var\cf3  messageType = GetMessageType(xmlMessage);\par
+\par
+                \cf5 // Ask our dictionary for the handle function for this message type.\cf3\par
+                \cf5 // If none if found, get a handle function from the GetHandleFunction method.\cf3\par
+                \cf1 var\cf3  handle = _handleFunctions.GetOrAdd(messageType, mt =&gt; CreateHandleFunction(mt, xmlMessage));\par
+\par
+                \cf5 // Call the function retrieved from the dictionary.\cf3\par
+                handle(xmlMessage);\par
+\par
+                \cf5 //var message = Deserialize(messageType, xmlMessage);\cf3\par
+                \cf5 //var handler = CreateMessageHandler(message);\cf3\par
+                \cf5 //HandleMessage(handler, message);\cf3\par
+            \}\par
+            \cf1 catch\cf3  (\cf4 Exception\cf3  ex)\par
+            \{\par
+                LogError(ex.Message);\par
+            \}\par
+        \}\par
+\par
+        \cf5 //private object Deserialize(string messageType, string xmlMessage)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // This is our first bit of reflection: scanning an assembly for types that match a criteria\cf3\par
+        \cf5 //    var type =\cf3\par
+        \cf5 //        Assembly.GetExecutingAssembly().GetTypes()\cf3\par
+        \cf5 //            .SingleOrDefault(t =&gt; t.Namespace == "MetaDemo.Messages" &amp;&amp; t.Name == messageType);\cf3\par
+\par
+        \cf5 //    return Deserialize(type, xmlMessage);\cf3\par
+        \cf5 //\}\cf3\par
+\par
+        \cf5 //private object CreateMessageHandler(object message)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // More assembly scanning...\cf3\par
+        \cf5 //    var type = Assembly.GetExecutingAssembly().GetTypes()\cf3\par
+        \cf5 //        .SingleOrDefault(\cf3\par
+        \cf5 //            t =&gt;\cf3\par
+        \cf5 //            t.Namespace == "MetaDemo.MessageHandlers"\cf3\par
+        \cf5 //            &amp;&amp; !t.IsAbstract\cf3\par
+        \cf5 //            &amp;&amp; t.GetInterfaces().Any(\cf3\par
+        \cf5 //                i =&gt;\cf3\par
+        \cf5 //                i.IsGenericType\cf3\par
+        \cf5 //                &amp;&amp; i.GetGenericTypeDefinition() == typeof(IMessageHandler&lt;&gt;)\cf3\par
+        \cf5 //                &amp;&amp; i.GetGenericArguments()[0] == message.GetType()));\cf3\par
+\par
+        \cf5 //    // More reflection: the Activator class.\cf3\par
+        \cf5 //    var handler = Activator.CreateInstance(type);\cf3\par
+        \cf5 //    return handler;\cf3\par
+        \cf5 //\}\cf3\par
+\par
+        \cf5 //private void HandleMessage(object handler, object message)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // Use reflection to find the correct method to invoke.\cf3\par
+        \cf5 //    var handleMethod =\cf3\par
+        \cf5 //        typeof(IMessageHandler&lt;&gt;).MakeGenericType(message.GetType())\cf3\par
+        \cf5 //            .GetMethods()\cf3\par
+        \cf5 //            .Single();\cf3\par
+\par
+        \cf5 //    // Invoke the Handle method using the MethodInfo reflection API...\cf3\par
+        \cf5 //    handleMethod.Invoke(handler, new object[] \{ message \});\cf3\par
+        \cf5 //\}\cf3\par
+\par
+\cf1         #region\cf3  Plumbing (i.e. not relevant to the talk)\par
+\par
+        \cf1 private\cf3  \cf1 string\cf3  GetMessageType(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  doc = System.Xml.Linq.\cf4 XDocument\cf3 .Parse(xmlMessage);\par
+            \cf1 return\cf3  doc.Root.Name.LocalName;\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 object\cf3  Deserialize(\cf4 Type\cf3  type, \cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  serializer = \cf1 new\cf3  System.Xml.Serialization.\cf4 XmlSerializer\cf3 (type);\par
+            \cf1 using\cf3  (\cf1 var\cf3  reader = \cf1 new\cf3  System.IO.\cf4 StringReader\cf3 (xmlMessage))\par
+            \{\par
+                \cf1 return\cf3  serializer.Deserialize(reader);\par
+            \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 void\cf3  LogError(\cf1 string\cf3  message)\par
+        \{\par
+            \cf4 Console\cf3 .WriteLine(\cf6 "ERROR: "\cf3  + message);\par
+        \}\par
+\par
+\cf1         #endregion\cf3\par
+    \}\par
+\}\par
+\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 We're going to be seeing a lot of my good friend, ConcurrentDictionary&lt;,&gt;. We'll use it for caching as much expensive stuff that we can.\par
+\par
+(Execute) Let's create a field...\par
+(Continue, Continue) ...and use ConcurrentDictionary's GetOrAdd method...\par
+(Continue) ...pass in our message type as the key to the dictionary...\par
+(Continue) ...and method that creates the Action&lt;string&gt; as the value for the message type key.\par
+(Continue) What we get back is an Action&lt;string&gt; that we can pass the message xml to.\par
+\par
+Now we just need to create this CreateHandleFunction method.\par
+}
+</Notes>
+  </Step>
+  <Step Number="17">
+    <GhostKeyboardData>[GotoLine 41][End][Pause 2]
+
+private Action&lt;string&gt; CreateHandleFunction(string messageTypeName, string xmlMessage)
+{[Wait]
+[Fast]// Use the same assembly scanning as before to get the message type.[/Fast][Wait]
+var messageType =
+Assembly.GetExecutingAssembly().GetTypes()
+    .SingleOrDefault(t =&gt; t.Namespace == "MetaDemo.Messages" &amp;&amp; t.Name == messageTypeName);
+
+[Wait][Fast]// And use almost the same assembly scanning to get the message handler type[/Fast][Wait]
+var handlerType =
+Assembly.GetExecutingAssembly().GetTypes()
+    .SingleOrDefault(
+    t =&gt;
+t.Namespace == "MetaDemo.MessageHandlers"
+&amp;&amp; !t.IsAbstract
+&amp;&amp; t.GetInterfaces().Any(
+    i =&gt;
+i.IsGenericType
+&amp;&amp; i.GetGenericTypeDefinition() == typeof(IMessageHandler&lt;&gt;)
+&amp;&amp; i.GetGenericArguments()[0] == messageType));
+
+[Wait][Fast]// And  find the handle method in almost the same way.[/Fast][Wait]
+var handleMethod =
+typeof(IMessageHandler&lt;&gt;).MakeGenericType(messageType)
+    .GetMethods()
+.Single();
+
+[Wait][Fast]// This is all we can cache. Let's make a function![/Fast][Wait]
+return
+xml =&gt;
+{
+var message = Deserialize(messageType);
+var handler = Activator.CreateInstance(handlerType);
+handler.Invoke(handler, new object[] { message });</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red0\green128\blue0;\red163\green21\blue21;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  MetaDemo.MessageHandlers;\par
+\cf1 using\cf3  MetaDemo.Messages;\par
+\cf1 using\cf3  System;\par
+\cf1 using\cf3  System.Collections.Concurrent;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Reflection;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 class\cf3  \cf4 MessageRouter\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf1 string\cf3 , \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt;&gt; _handleFunctions =\par
+            \cf1 new\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf1 string\cf3 , \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt;&gt;();\par
+\par
+        \cf1 public\cf3  \cf1 void\cf3  Route(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 try\cf3\par
+            \{\par
+                \cf5 // For any given message type:\cf3\par
+                \cf5 //   1) Deserialize a message object.\cf3\par
+                \cf5 //   2) Create a message handler object.\cf3\par
+                \cf5 //   3) Pass the message to the message handler's Handle method.\cf3\par
+\par
+                \cf1 var\cf3  messageType = GetMessageType(xmlMessage);\par
+\par
+                \cf5 // Ask our dictionary for the handle function for this message type.\cf3\par
+                \cf5 // If none if found, get a handle function from the GetHandleFunction method.\cf3\par
+                \cf1 var\cf3  handle = _handleFunctions.GetOrAdd(messageType, mt =&gt; CreateHandleFunction(mt, xmlMessage));\par
+\par
+                \cf5 // Call the function retrieved from the dictionary.\cf3\par
+                handle(xmlMessage);\par
+\par
+                \cf5 //var message = Deserialize(messageType, xmlMessage);\cf3\par
+                \cf5 //var handler = CreateMessageHandler(message);\cf3\par
+                \cf5 //HandleMessage(handler, message);\cf3\par
+            \}\par
+            \cf1 catch\cf3  (\cf4 Exception\cf3  ex)\par
+            \{\par
+                LogError(ex.Message);\par
+            \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt; CreateHandleFunction(\cf1 string\cf3  messageTypeName, \cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf5 // Use the same assembly scanning as before to get the message type.\cf3\par
+            \cf1 var\cf3  messageType =\par
+                \cf4 Assembly\cf3 .GetExecutingAssembly().GetTypes()\par
+                    .SingleOrDefault(t =&gt; t.Namespace == \cf6 "MetaDemo.Messages"\cf3  &amp;&amp; t.Name == messageTypeName);\par
+\par
+            \cf5 // And use almost the same assembly scanning to get the message handler type\cf3\par
+            \cf1 var\cf3  handlerType =\par
+                \cf4 Assembly\cf3 .GetExecutingAssembly().GetTypes()\par
+                    .SingleOrDefault(\par
+                        t =&gt;\par
+                        t.Namespace == \cf6 "MetaDemo.MessageHandlers"\cf3\par
+                        &amp;&amp; !t.IsAbstract\par
+                        &amp;&amp; t.GetInterfaces().Any(\par
+                            i =&gt;\par
+                            i.IsGenericType\par
+                            &amp;&amp; i.GetGenericTypeDefinition() == \cf1 typeof\cf3 (\cf4 IMessageHandler\cf3 &lt;&gt;)\par
+                            &amp;&amp; i.GetGenericArguments()[0] == messageType));\par
+\par
+            \cf5 // And  find the handle method in almost the same way.\cf3\par
+            \cf1 var\cf3  handleMethod =\par
+                \cf1 typeof\cf3 (\cf4 IMessageHandler\cf3 &lt;&gt;).MakeGenericType(messageType)\par
+                    .GetMethods()\par
+                    .Single();\par
+\par
+            \cf5 // This is all we can cache. Let's make a function!\cf3\par
+            \cf1 return\cf3\par
+                xml =&gt;\par
+                    \{\par
+                        \cf1 var\cf3  message = Deserialize(messageType);\par
+                        \cf1 var\cf3  handler = \cf4 Activator\cf3 .CreateInstance(handlerType);\par
+                        handler.Invoke(handler, \cf1 new\cf3  \cf1 object\cf3 [] \{ message \});\par
+                    \}\par
+        \}\par
+\par
+        \cf5 //private object Deserialize(string messageType, string xmlMessage)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // This is our first bit of reflection: scanning an assembly for types that match a criteria\cf3\par
+        \cf5 //    var type =\cf3\par
+        \cf5 //        Assembly.GetExecutingAssembly().GetTypes()\cf3\par
+        \cf5 //            .SingleOrDefault(t =&gt; t.Namespace == "MetaDemo.Messages" &amp;&amp; t.Name == messageType);\cf3\par
+\par
+        \cf5 //    return Deserialize(type, xmlMessage);\cf3\par
+        \cf5 //\}\cf3\par
+\par
+        \cf5 //private object CreateMessageHandler(object message)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // More assembly scanning...\cf3\par
+        \cf5 //    var type = Assembly.GetExecutingAssembly().GetTypes()\cf3\par
+        \cf5 //        .SingleOrDefault(\cf3\par
+        \cf5 //            t =&gt;\cf3\par
+        \cf5 //            t.Namespace == "MetaDemo.MessageHandlers"\cf3\par
+        \cf5 //            &amp;&amp; !t.IsAbstract\cf3\par
+        \cf5 //            &amp;&amp; t.GetInterfaces().Any(\cf3\par
+        \cf5 //                i =&gt;\cf3\par
+        \cf5 //                i.IsGenericType\cf3\par
+        \cf5 //                &amp;&amp; i.GetGenericTypeDefinition() == typeof(IMessageHandler&lt;&gt;)\cf3\par
+        \cf5 //                &amp;&amp; i.GetGenericArguments()[0] == message.GetType()));\cf3\par
+\par
+        \cf5 //    // More reflection: the Activator class.\cf3\par
+        \cf5 //    var handler = Activator.CreateInstance(type);\cf3\par
+        \cf5 //    return handler;\cf3\par
+        \cf5 //\}\cf3\par
+\par
+        \cf5 //private void HandleMessage(object handler, object message)\cf3\par
+        \cf5 //\{\cf3\par
+        \cf5 //    // Use reflection to find the correct method to invoke.\cf3\par
+        \cf5 //    var handleMethod =\cf3\par
+        \cf5 //        typeof(IMessageHandler&lt;&gt;).MakeGenericType(message.GetType())\cf3\par
+        \cf5 //            .GetMethods()\cf3\par
+        \cf5 //            .Single();\cf3\par
+\par
+        \cf5 //    // Invoke the Handle method using the MethodInfo reflection API...\cf3\par
+        \cf5 //    handleMethod.Invoke(handler, new object[] \{ message \});\cf3\par
+        \cf5 //\}\cf3\par
+\par
+\cf1         #region\cf3  Plumbing (i.e. not relevant to the talk)\par
+\par
+        \cf1 private\cf3  \cf1 string\cf3  GetMessageType(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  doc = System.Xml.Linq.\cf4 XDocument\cf3 .Parse(xmlMessage);\par
+            \cf1 return\cf3  doc.Root.Name.LocalName;\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 object\cf3  Deserialize(\cf4 Type\cf3  type, \cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  serializer = \cf1 new\cf3  System.Xml.Serialization.\cf4 XmlSerializer\cf3 (type);\par
+            \cf1 using\cf3  (\cf1 var\cf3  reader = \cf1 new\cf3  System.IO.\cf4 StringReader\cf3 (xmlMessage))\par
+            \{\par
+                \cf1 return\cf3  serializer.Deserialize(reader);\par
+            \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 void\cf3  LogError(\cf1 string\cf3  message)\par
+        \{\par
+            \cf4 Console\cf3 .WriteLine(\cf6 "ERROR: "\cf3  + message);\par
+        \}\par
+\par
+\cf1         #endregion\cf3\par
+    \}\par
+\}\par
+\cf1\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 (Play)We're going to cache as much as we can into the function that we return through closures.\par
+(Continue) The first of those is the Type of the message object. [continue immediately]\par
+(Continue) We'll scan as before, and store it in a local variable.\par
+(Continue) The second to cache is the Type of the message handler object. We'll scan like before... [continue immediately]\par
+(Continue) ...the only difference is that we're using messageType instead of calling message.GetType().\par
+(Continue) Last is the MethodInfo for the Handle method.\par
+(Continue) (same difference: messageType vs message.GetType())\par
+(Continue) That's it. Time to make a function! [continue immediately]\par
+(Continue) Looks pretty familiar, huh?\par
+}
+</Notes>
+  </Step>
+  <Step Number="18">
+    <GhostKeyboardData />
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red163\green21\blue21;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  MetaDemo.MessageHandlers;\par
+\cf1 using\cf3  System;\par
+\cf1 using\cf3  System.Collections.Concurrent;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Reflection;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 class\cf3  \cf4 MessageRouter\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf1 string\cf3 , \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt;&gt; _handleFunctions =\par
+            \cf1 new\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf1 string\cf3 , \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt;&gt;();\par
+\par
+        \cf1 public\cf3  \cf1 void\cf3  Route(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 try\cf3\par
+            \{\par
+                \cf1 var\cf3  messageType = GetMessageType(xmlMessage);\par
+                \cf1 var\cf3  handle = _handleFunctions.GetOrAdd(messageType, mt =&gt; CreateHandleFunction(mt, xmlMessage));\par
+                handle(xmlMessage);\par
+            \}\par
+            \cf1 catch\cf3  (\cf4 Exception\cf3  ex)\par
+            \{\par
+                LogError(ex.Message);\par
+            \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 Action\cf3 &lt;\cf1 string\cf3 &gt; CreateHandleFunction(\cf1 string\cf3  messageTypeName, \cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  messageType = GetTypeOfMessage(messageTypeName);\par
+            \cf1 var\cf3  handlerType = GetTypeOfMessageHandler(messageType);\par
+            \cf1 var\cf3  handleMethod = GetHandleMethodInfo(messageType);\par
+\par
+            \cf1 return\cf3\par
+                xml =&gt;\par
+                    handleMethod.Invoke(\par
+                        \cf4 Activator\cf3 .CreateInstance(handlerType),\par
+                        \cf1 new\cf3  \cf1 object\cf3 [] \{ Deserialize(messageType, xml) \});\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 Type\cf3  GetTypeOfMessage(\cf1 string\cf3  messageTypeName)\par
+        \{\par
+            \cf1 return\cf3\par
+                \cf4 Assembly\cf3 .GetExecutingAssembly().GetTypes()\par
+                    .SingleOrDefault(t =&gt; t.Namespace == \cf5 "MetaDemo.Messages"\cf3  &amp;&amp; t.Name == messageTypeName);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 Type\cf3  GetTypeOfMessageHandler(\cf4 Type\cf3  messageType)\par
+        \{\par
+            \cf1 return\cf3\par
+                \cf4 Assembly\cf3 .GetExecutingAssembly().GetTypes()\par
+                    .SingleOrDefault(\par
+                        t =&gt;\par
+                        t.Namespace == \cf5 "MetaDemo.MessageHandlers"\cf3\par
+                        &amp;&amp; !t.IsAbstract\par
+                        &amp;&amp; t.GetInterfaces().Any(\par
+                            i =&gt;\par
+                            i.IsGenericType\par
+                            &amp;&amp; i.GetGenericTypeDefinition() == \cf1 typeof\cf3 (\cf4 IMessageHandler\cf3 &lt;&gt;)\par
+                            &amp;&amp; i.GetGenericArguments()[0] == messageType));\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 MethodInfo\cf3  GetHandleMethodInfo(\cf4 Type\cf3  messageType)\par
+        \{\par
+            \cf1 return\cf3\par
+                \cf1 typeof\cf3 (\cf4 IMessageHandler\cf3 &lt;&gt;).MakeGenericType(messageType)\par
+                    .GetMethods()\par
+                    .Single();\par
+        \}\par
+\par
+\cf1         #region\cf3  Plumbing (i.e. not relevant to the talk)\par
+\par
+        \cf1 private\cf3  \cf1 string\cf3  GetMessageType(\cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  doc = System.Xml.Linq.\cf4 XDocument\cf3 .Parse(xmlMessage);\par
+            \cf1 return\cf3  doc.Root.Name.LocalName;\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 object\cf3  Deserialize(\cf4 Type\cf3  type, \cf1 string\cf3  xmlMessage)\par
+        \{\par
+            \cf1 var\cf3  serializer = \cf1 new\cf3  System.Xml.Serialization.\cf4 XmlSerializer\cf3 (type);\par
+            \cf1 using\cf3  (\cf1 var\cf3  reader = \cf1 new\cf3  System.IO.\cf4 StringReader\cf3 (xmlMessage))\par
+            \{\par
+                \cf1 return\cf3  serializer.Deserialize(reader);\par
+            \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 void\cf3  LogError(\cf1 string\cf3  message)\par
+        \{\par
+            \cf4 Console\cf3 .WriteLine(\cf5 "ERROR: "\cf3  + message);\par
+        \}\par
+\par
+\cf1         #endregion\cf3\par
+    \}\par
+\}\par
+\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Let's clean up a bit...\par
+\par
+(push finished code to application) Take a look at what we have. About 70 lines of code. Nothing too complex. And we've optimized a bit. There's still some performance impact from the reflection that occurs each message (MethodInfo.Invoke, Activator.CreateInstance). If only there was a way to do that...\par
+}
+</Notes>
+  </Step>
 </Demo>
