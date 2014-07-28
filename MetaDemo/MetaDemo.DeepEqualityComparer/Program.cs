@@ -44,11 +44,22 @@ namespace MetaDemo
                 Bars = new[] {
                     new Bar { Id = 123, Value = "abc" },
                     new Bar { Id = 789, Value = "WTF!?" } },
-                Baz = "Hello, world" };
+                Baz = "Hello, world"
+            };
+
+            var foo5 = new Foo
+            {
+                Bars = new[] {
+                    new Bar { Id = 123, Value = "abc" },
+                    new Bar { Id = 789, Value = "xyz" },
+                    new Bar { Id = 789, Value = "omg" } },
+                Baz = "Hello, world!"
+            };
 
             ShowEquals(foo1, foo2, "foo1", "foo2");
             ShowEquals(foo1, foo3, "foo1", "foo3");
             ShowEquals(foo1, foo4, "foo1", "foo4");
+            ShowEquals(foo1, foo5, "foo1", "foo5");
 
             Console.WriteLine();
             Console.Write("Press any key to continue...");
