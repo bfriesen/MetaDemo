@@ -1490,6 +1490,16 @@ return lambda.Compile();</GhostKeyboardData>
 </FinishedCode>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
 \viewkind4\uc1\pard\f0\fs24 Let's do a little bit of clean up and see what we have. (push finished code to application)\par
+\par
+Not bad huh?\par
+\par
+Any questions?\par
+}
+</Notes>
+  </Step>
+  <Step Number="22">
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Next up... DeepEqualityComparer\par
 }
 </Notes>
   </Step>
