@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Demo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <TargetApplicationTitle>ConsoleApplication11 - Microsoft Visual Studio</TargetApplicationTitle>
+  <TargetApplicationTitle>MetaDemo - Microsoft Visual Studio</TargetApplicationTitle>
   <InitialCode />
   <Step Number="1">
-    <GhostKeyboardData>[DeleteAll]// Brian Friesen
+    <GhostKeyboardData>[DeleteAll]Brian Friesen
 
-// QL.IT.AD.COE.Core.AppCore
-// C# MVP
+QL.IT.AD.COE.Core.AppCore
+C# MVP
 
-// brianfriesen@quickenloans.com
-// @brianfriesen
-// randomskunk.com</GhostKeyboardData>
+brianfriesen@quickenloans.com
+@brianfriesen
+randomskunk.com</GhostKeyboardData>
     <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}}
 {\colortbl ;\red0\green128\blue0;\red255\green255\blue255;}
 \viewkind4\uc1\pard\cf1\highlight2\f0\fs22\par
@@ -20,13 +20,14 @@
 \viewkind4\uc1\pard\f0\fs24 Intro\par
 -Who I am\par
 -What team I'm on\par
--Other stuff?\par
+-MVP\par
+-Contact info\par
 }
 </Notes>
   </Step>
   <Step Number="2">
-    <GhostKeyboardData>[DeleteAll]// I'm So Meta, Even This tAlk (ISMETA)
-// http://xkcd.com/917/</GhostKeyboardData>
+    <GhostKeyboardData>[DeleteAll]I'm So Meta, Even This tAlk (ISMETA)
+http://xkcd.com/917/</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
 \viewkind4\uc1\pard\f0\fs24 I'm So Meta, Even This tAlk (ISMETA)\par
 \par
@@ -35,7 +36,7 @@ Talk a bit about xkcd. If internet connection is available, go to the link.\par
 </Notes>
   </Step>
   <Step Number="3">
-    <GhostKeyboardData>[DeleteAll]// So what is metaprogramming anyway?[Pause 3]</GhostKeyboardData>
+    <GhostKeyboardData>[DeleteAll]So what is metaprogramming anyway?</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fmodern\fprq1\fcharset0 Consolas;}{\f1\fnil\fcharset0 Consolas;}}
 \viewkind4\uc1\pard\f0\fs24 So what is metaprogramming anyway?\f1\par
 }
@@ -58,7 +59,7 @@ TODO: list "when you need to..." examples\par
 </Notes>
   </Step>
   <Step Number="6">
-    <GhostKeyboardData>[DeleteAll]// Concerns</GhostKeyboardData>
+    <GhostKeyboardData>[DeleteAll]Concerns</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Consolas;}}
 \viewkind4\uc1\pard\f0\fs24 [Pause 5]\par
 //\par
@@ -68,19 +69,35 @@ TODO: list "when you need to..." examples\par
 </Notes>
   </Step>
   <Step Number="7">
-    <GhostKeyboardData>[DeleteAll]// Scenario</GhostKeyboardData>
+    <GhostKeyboardData>[DeleteAll]Scenario - Message Router</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
-\viewkind4\uc1\pard\f0\fs24 Scenario\par
+\viewkind4\uc1\pard\f0\fs24 sScenario\par
 \par
-// TODO: describe the message routing scenario\par
+Describe the pattern that our system is using.\par
+    -ESB\par
+    -Messages\par
+    -Message Handlers\par
+    -Message Router as the "glue" in the system.\par
 }
 </Notes>
   </Step>
   <Step Number="8">
-    <GhostKeyboardData>[`Hello, world!`]</GhostKeyboardData>
+    <GhostKeyboardData>[DeleteAll]Let's look at some code...</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
 \viewkind4\uc1\pard\f0\fs24 Ok, so let's start out with our existing implementation.\par
+\par
+(Execute, then show demo of existing app)\par
+\par
+Start with Program.cs, show the messages and their handlers. End with MessageRouter.cs.\par
+\par
+MessageRouter.cs:\par
+    -It has the "big switch statement"\par
+    -In each case of the switch:\par
+        -The message is deserialized into an instance of the "correct" type.\par
+        -An instance of a message handler is created for that specific type of message.\par
+        -The message is passed to the handler.\par
 }
 </Notes>
   </Step>
+  <Step Number="9" />
 </Demo>
