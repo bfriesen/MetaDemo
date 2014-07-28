@@ -35,6 +35,7 @@ namespace MetaDemo
                         handler.Handle(message);
                         break;
                     }
+                    // Imagine dozens or hundreds of messages here.
                     default:
                         LogError("Unknown message type: " + messageType);
                         break;
