@@ -8,33 +8,33 @@ namespace MetaDemo
     {
         public void Route(string xmlMessage)
         {
-            var messageType = GetMessageType(xmlMessage);
-
             try
             {
+                var messageType = GetMessageType(xmlMessage);
+
                 switch (messageType)
                 {
                     case "FooMessage":
-                        {
-                            var message = Deserialize<FooMessage>(xmlMessage);
-                            var handler = new FooHandler();
-                            handler.Handle(message);
-                            break;
-                        }
+                    {
+                        var message = Deserialize<FooMessage>(xmlMessage);
+                        var handler = new FooHandler();
+                        handler.Handle(message);
+                        break;
+                    }
                     case "BarMessage":
-                        {
-                            var message = Deserialize<BarMessage>(xmlMessage);
-                            var handler = new BarHandler();
-                            handler.Handle(message);
-                            break;
-                        }
+                    {
+                        var message = Deserialize<BarMessage>(xmlMessage);
+                        var handler = new BarHandler();
+                        handler.Handle(message);
+                        break;
+                    }
                     case "BazMessage":
-                        {
-                            var message = Deserialize<BazMessage>(xmlMessage);
-                            var handler = new BazHandler();
-                            handler.Handle(message);
-                            break;
-                        }
+                    {
+                        var message = Deserialize<BazMessage>(xmlMessage);
+                        var handler = new BazHandler();
+                        handler.Handle(message);
+                        break;
+                    }
                     default:
                         LogError("Unknown message type: " + messageType);
                         break;
