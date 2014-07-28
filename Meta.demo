@@ -38,7 +38,14 @@ Talk a bit about xkcd. If internet connection is available, go to the link.\par
   <Step Number="3">
     <GhostKeyboardData>[DeleteAll]So what is metaprogramming anyway?</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fmodern\fprq1\fcharset0 Consolas;}{\f1\fnil\fcharset0 Consolas;}}
-\viewkind4\uc1\pard\f0\fs24 So what is metaprogramming anyway?\f1\par
+\viewkind4\uc1\pard\f0\fs24 So what is metaprogramming anyway?\par
+\par
+When program thinks about the "things" of another program (or itself).\par
+\par
+reflection\par
+code generation\par
+t4 templates\par
+dynamic\f1\par
 }
 </Notes>
   </Step>
@@ -47,14 +54,23 @@ Talk a bit about xkcd. If internet connection is available, go to the link.\par
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
 \viewkind4\uc1\pard\f0\fs24 What is metaprogramming good for?\par
 \par
-TODO: list "when you need to..." examples\par
+When you're implementing...\par
+serialization\par
+templates\par
+mocking\par
+dependency injection\par
+"convention over configuration"\par
 }
 </Notes>
   </Step>
   <Step Number="5">
     <GhostKeyboardData>[DeleteAll]Examples of metaprogramming</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
-\viewkind4\uc1\pard\f0\fs24\par
+\viewkind4\uc1\pard\f0\fs24 ASP MVC\par
+PostSharp\par
+Ninject\par
+Entity Framework\par
+System.Xml.Serialization.XmlSerializer\par
 }
 </Notes>
   </Step>
@@ -71,7 +87,7 @@ TODO: list "when you need to..." examples\par
   <Step Number="7">
     <GhostKeyboardData>[DeleteAll]Scenario - Message Router</GhostKeyboardData>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
-\viewkind4\uc1\pard\f0\fs24 sScenario\par
+\viewkind4\uc1\pard\f0\fs24 Scenario\par
 \par
 Describe the pattern that our system is using.\par
     -ESB\par
@@ -270,7 +286,7 @@ Disadvantages of hand-coded MessageRouter[Pause 5]\par
   2) Create a message handler object.\par
   3) Pass the message object to the message handler's Handle method.\par
 \par
-So let's get rid of it.\par
+So let's get rid of it.(Execute)\par
 \par
 But what do we put in its place?\par
 \par
@@ -616,7 +632,7 @@ Let's comment out our existing implementation... (Execute) ...next step.\par
 using System.Collections.Concurrent;[Pause 2][GotoLine 11][End][Pause 1]
 
 [Up]private readonly ConcurrentDictionary&lt;string, Action&lt;string&gt;&gt; _handleFunctions =
-new ConcurrentDictionary&lt;string, Action&lt;string&gt;&gt;();[GotoLine 25][End]
+new ConcurrentDictionary&lt;string, Action&lt;string&gt;&gt;();[GotoLine 24][End]
 
 [Up][Fast]// Ask our dictionary for the handle function for this message type.
 // If none if found, get a handle function from the GetHandleFunction method.[/Fast]
@@ -751,7 +767,7 @@ Now we just need to create this CreateHandleFunction method.\par
 </Notes>
   </Step>
   <Step Number="17">
-    <GhostKeyboardData>[GotoLine 41][End][Pause 2]
+    <GhostKeyboardData>[GotoLine 40][End][Pause 2]
 
 private Action&lt;string&gt; CreateHandleFunction(string messageTypeName, string xmlMessage)
 {[Wait]
@@ -783,9 +799,9 @@ typeof(IMessageHandler&lt;&gt;).MakeGenericType(messageType)
 return
 xml =&gt;
 {
-var message = Deserialize(messageType);
+var message = Deserialize(messageType, xmlMessage);
 var handler = Activator.CreateInstance(handlerType);
-handler.Invoke(handler, new object[] { message });</GhostKeyboardData>
+handleMethod.Invoke(handler, new object[] { message });[Down];</GhostKeyboardData>
     <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}}
 {\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red0\green128\blue0;\red163\green21\blue21;}
 \viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  MetaDemo.MessageHandlers;\par
@@ -953,7 +969,7 @@ handler.Invoke(handler, new object[] { message });</GhostKeyboardData>
 
 [Up]</GhostKeyboardData>
     <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}}
-{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red0\green128\blue0;\red163\green21\blue21;}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red163\green21\blue21;}
 \viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  MetaDemo.MessageHandlers;\par
 \cf1 using\cf3  System;\par
 \cf1 using\cf3  System.Collections.Concurrent;\par
@@ -987,20 +1003,18 @@ handler.Invoke(handler, new object[] { message });</GhostKeyboardData>
             \cf1 var\cf3  handlerType = GetTypeOfMessageHandler(messageType);\par
             \cf1 var\cf3  handleMethod = GetHandleMethodInfo(messageType);\par
 \par
-\par
-\par
-            \cf5 //return\cf3\par
-            \cf5 //    xml =&gt;\cf3\par
-            \cf5 //        handleMethod.Invoke(\cf3\par
-            \cf5 //            Activator.CreateInstance(handlerType),\cf3\par
-            \cf5 //            new object[] \{ Deserialize(messageType, xml) \});\cf3\par
+            \cf1 return\cf3\par
+                xml =&gt;\par
+                    handleMethod.Invoke(\par
+                        \cf4 Activator\cf3 .CreateInstance(handlerType),\par
+                        \cf1 new\cf3  \cf1 object\cf3 [] \{ Deserialize(messageType, xml) \});\par
         \}\par
 \par
         \cf1 private\cf3  \cf1 static\cf3  \cf4 Type\cf3  GetTypeOfMessage(\cf1 string\cf3  messageTypeName)\par
         \{\par
             \cf1 return\cf3\par
                 \cf4 Assembly\cf3 .GetExecutingAssembly().GetTypes()\par
-                    .SingleOrDefault(t =&gt; t.Namespace == \cf6 "MetaDemo.Messages"\cf3  &amp;&amp; t.Name == messageTypeName);\par
+                    .SingleOrDefault(t =&gt; t.Namespace == \cf5 "MetaDemo.Messages"\cf3  &amp;&amp; t.Name == messageTypeName);\par
         \}\par
 \par
         \cf1 private\cf3  \cf1 static\cf3  \cf4 Type\cf3  GetTypeOfMessageHandler(\cf4 Type\cf3  messageType)\par
@@ -1009,7 +1023,7 @@ handler.Invoke(handler, new object[] { message });</GhostKeyboardData>
                 \cf4 Assembly\cf3 .GetExecutingAssembly().GetTypes()\par
                     .SingleOrDefault(\par
                         t =&gt;\par
-                        t.Namespace == \cf6 "MetaDemo.MessageHandlers"\cf3\par
+                        t.Namespace == \cf5 "MetaDemo.MessageHandlers"\cf3\par
                         &amp;&amp; !t.IsAbstract\par
                         &amp;&amp; t.GetInterfaces().Any(\par
                             i =&gt;\par
@@ -1045,7 +1059,7 @@ handler.Invoke(handler, new object[] { message });</GhostKeyboardData>
 \par
         \cf1 private\cf3  \cf1 void\cf3  LogError(\cf1 string\cf3  message)\par
         \{\par
-            \cf4 Console\cf3 .WriteLine(\cf6 "ERROR: "\cf3  + message);\par
+            \cf4 Console\cf3 .WriteLine(\cf5 "ERROR: "\cf3  + message);\par
         \}\par
 \par
 \cf1         #endregion\cf3\par
@@ -1498,8 +1512,1562 @@ Any questions?\par
 </Notes>
   </Step>
   <Step Number="22">
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3\par
+    \{\par
+    \}\par
+\}\par
+\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
     <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
 \viewkind4\uc1\pard\f0\fs24 Next up... DeepEqualityComparer\par
+\par
+1) Set the DeepEqualityComparer project as the startup project.\par
+2) Review existing code in Program.cs.\par
+3) Show the nasty Equals method.\par
+}
+</Notes>
+  </Step>
+  <Step Number="23">
+    <GhostKeyboardData>[SelectText 73,10 42,0][Delete 1][Up 2][Right 16][Wait]DeepEqualityComparer.Instance.</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Consolas;}}
+\viewkind4\uc1\pard\f0\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 That Equals method is pretty nasty. And it only covers the Foo class!\par
+\par
+Let's get rid of it.\par
+(Continue) And in its place, let's make a call to a singleton instance of IEqualityComparer.\par
+...which doesn't really exist...yet.\par
+}
+</Notes>
+  </Step>
+  <Step Number="24">
+    <GhostKeyboardData>[DeleteAll]using System;
+using System.Collections;
+
+namespace MetaDemo
+{
+public sealed class DeepEqualityComparer : IEqualityComparer
+{
+private static readonly DeepEqualityComparer _instance = new DeepEqualityComparer();
+
+private DeepEqualityComparer()
+{
+[DeleteLine][End]
+
+public static IEqualityComparer Instance
+{
+get {return _instance;[End][Down 1]
+
+public bool Equals(object lhs, object rhs)
+{
+throw new NotImplementedException();[Down 1]
+
+public int GetHashCode(object obj)
+{
+throw new NotImplementedException();</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Collections;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 **Move to DeepEqualityComparer.cs before executing**\par
+\par
+So we already said we were going to use a singleton instance, so let's implement the singleton pattern.\par
+And we'll implement IEqualityComparer while we're at it...\par
+}
+</Notes>
+  </Step>
+  <Step Number="25">
+    <GhostKeyboardData>[GotoLine 2][End]
+using System.Collections.Generic;[Pause 1][GotoLine 18][End]
+
+private static IEqualityComparer&lt;T&gt; GetGenericInstance&lt;T&gt;()
+{
+return GenericDeepEqualityComparer&lt;T&gt;.Instance;[Wait][GotoLine 33][End]
+
+private sealed class GenericDeepEqualityComparer&lt;T&gt; : IEqualityComparer&lt;T&gt;
+{
+private static readonly GenericDeepEqualityComparer&lt;T&gt; _instance = new GenericDeepEqualityComparer&lt;T&gt;();
+
+private GenericDeepEqualityComparer()
+{
+[DeleteLine][End]
+
+public static IEqualityComparer&lt;T&gt; Instance
+{
+get {return _instance;[End][Down 1]
+
+public bool Equals(T lhs, T rhs)
+{
+return DeepEqualityComparer.Instance.Equals(lhs, rhs);[End][Down 1]
+
+public int GetHashCode(T obj)
+{
+return DeepEqualityComparer.Instance.GetHashCode(obj);</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 (Execute - it takes a while)\par
+Let's give ourselves the ability to easily retrive a generic IEqualityComparer&lt;&gt;. The generic implementation\par
+won't add any functionality - it'll just call the singleton's methods.\par
+}
+</Notes>
+  </Step>
+  <Step Number="26">
+    <GhostKeyboardData>[SelectText 27,13 0,36][Pause 1][Delete 1][Wait]if (lhs == null &amp;&amp; rhs == null)
+{
+return true;[Wait][Down]
+
+if (lhs == null
+|| rhs == null
+|| lhs.GetType() != rhs.GetType())
+{
+return false;
+</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+\par
+            \}\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Our plumbing is all finished. Time to implement the two interface methods. Let's start with Equals.\par
+\par
+(Continue) Let's start out by taking care of null. If both values are null, we're equal.\par
+(Continue) Then, if either is true (because at this point, they're not both true), we're not equal. Or if the types don't match, we're not equal.\par
+}
+</Notes>
+  </Step>
+  <Step Number="27">
+    <GhostKeyboardData>[GotoLine 37][End]
+
+var type = lhs.GetType();
+
+if (IsPrimitivish(type))
+{
+return lhs.Equals(rhs);</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Now let's grab the objects' type and see if it is primitive-like. If it is, just return the result of the object's Equals method.\par
+}
+</Notes>
+  </Step>
+  <Step Number="28">
+    <GhostKeyboardData>[GotoLine 1][End]
+using System.Linq;[Pause 1][GotoLine 45][End]
+
+if (typeof(IEnumerable).IsAssignableFrom(type))
+{
+var lhsList = ((IEnumerable)lhs).Cast&lt;object&gt;().ToList();
+var rhsList = ((IEnumerable)rhs).Cast&lt;object&gt;().ToList();
+
+if (lhsList.Count != rhsList.Count)
+{
+return false;[Down 1]
+
+return 
+lhsList
+    .Zip(rhsList, (l, r) =&gt; this.Equals(l, r))
+.All(x =&gt; x);</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 var\cf3  lhsList = ((\cf4 IEnumerable\cf3 )lhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+                \cf1 var\cf3  rhsList = ((\cf4 IEnumerable\cf3 )rhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+\par
+                \cf1 if\cf3  (lhsList.Count != rhsList.Count)\par
+                \{\par
+                    \cf1 return\cf3  \cf1 false\cf3 ;\par
+                \}\par
+\par
+                \cf1 return\cf3\par
+                    lhsList\par
+                        .Zip(rhsList, (l, r) =&gt; \cf1 this\cf3 .Equals(l, r))\par
+                        .All(x =&gt; x);\par
+            \}\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 [Execute immediately] Now we need to take care of lists of things. This should be good enough.\par
+}
+</Notes>
+  </Step>
+  <Step Number="29">
+    <GhostKeyboardData>[GotoLine 61][End][Pause 1]
+
+return
+GetPropertyAccessors(type)
+    .All(getPropertyValue =&gt; this.Equals(getPropertyValue(lhs), getPropertyValue(rhs)));</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 var\cf3  lhsList = ((\cf4 IEnumerable\cf3 )lhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+                \cf1 var\cf3  rhsList = ((\cf4 IEnumerable\cf3 )rhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+\par
+                \cf1 if\cf3  (lhsList.Count != rhsList.Count)\par
+                \{\par
+                    \cf1 return\cf3  \cf1 false\cf3 ;\par
+                \}\par
+\par
+                \cf1 return\cf3\par
+                    lhsList\par
+                        .Zip(rhsList, (l, r) =&gt; \cf1 this\cf3 .Equals(l, r))\par
+                        .All(x =&gt; x);\par
+            \}\par
+\par
+            \cf1 return\cf3\par
+                GetPropertyAccessors(type)\par
+                    .All(getPropertyValue =&gt; \cf1 this\cf3 .Equals(getPropertyValue(lhs), getPropertyValue(rhs)));\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 And finally, take care of the properties of each object.\par
+}
+</Notes>
+  </Step>
+  <Step Number="30">
+    <GhostKeyboardData>[GotoLine 10][End]
+
+private readonly Type[] _primitivishTypes =
+{
+typeof(string),
+typeof(decimal),
+typeof(DateTime),
+typeof(Guid)[Down];[Wait][GotoLine 79][End]
+
+private bool IsPrimitivish(Type type)
+{
+return IsNonNullablePrimitivish(type) || IsNullablePrimitivish(type);[End][Down]
+
+private bool IsNonNullablePrimitivish(Type type)
+{
+return type.IsPrimitive || _primitivishTypes.Contains(type);[End][Down]
+
+private bool IsNullablePrimitivish(Type type)
+{
+return
+type.IsGenericType
+&amp;&amp; type.GetGenericTypeDefinition() == typeof(Nullable&lt;&gt;)
+&amp;&amp; IsNonNullablePrimitivish(type.GetGenericArguments()[0]);</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 Type\cf3 [] _primitivishTypes =\par
+        \{\par
+            \cf1 typeof\cf3 (\cf1 string\cf3 ),\par
+            \cf1 typeof\cf3 (\cf1 decimal\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 DateTime\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 Guid\cf3 )\par
+        \};\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 var\cf3  lhsList = ((\cf4 IEnumerable\cf3 )lhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+                \cf1 var\cf3  rhsList = ((\cf4 IEnumerable\cf3 )rhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+\par
+                \cf1 if\cf3  (lhsList.Count != rhsList.Count)\par
+                \{\par
+                    \cf1 return\cf3  \cf1 false\cf3 ;\par
+                \}\par
+\par
+                \cf1 return\cf3\par
+                    lhsList\par
+                        .Zip(rhsList, (l, r) =&gt; \cf1 this\cf3 .Equals(l, r))\par
+                        .All(x =&gt; x);\par
+            \}\par
+\par
+            \cf1 return\cf3\par
+                GetPropertyAccessors(type)\par
+                    .All(getPropertyValue =&gt; \cf1 this\cf3 .Equals(getPropertyValue(lhs), getPropertyValue(rhs)));\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsPrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  IsNonNullablePrimitivish(type) || IsNullablePrimitivish(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNonNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  type.IsPrimitive || _primitivishTypes.Contains(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                type.IsGenericType\par
+                &amp;&amp; type.GetGenericTypeDefinition() == \cf1 typeof\cf3 (\cf4 Nullable\cf3 &lt;&gt;)\par
+                &amp;&amp; IsNonNullablePrimitivish(type.GetGenericArguments()[0]);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Now we need to determine if a type is "primitivish".\par
+\par
+We'll make a list of all the types that are, for all intents and purposes, primitive.\par
+(Continue) Note that we're using a little bit of reflection here.\par
+}
+</Notes>
+  </Step>
+  <Step Number="31">
+    <GhostKeyboardData>[GotoLine 4][End]
+using System.Collections.Concurrent;[Pause 1][GotoLine 19][End][Pause 1]
+
+private readonly ConcurrentDictionary&lt;Type, IEnumerable&lt;Func&lt;object, object&gt;&gt;&gt; _propertyAccessorsMap =
+new ConcurrentDictionary&lt;Type, IEnumerable&lt;Func&lt;object, object&gt;&gt;&gt;();[Wait][GotoLine 83][End]
+
+private IEnumerable&lt;Func&lt;object, object&gt;&gt; GetPropertyAccessors(Type type)
+{
+return
+_propertyAccessorsMap.GetOrAdd(
+     type,
+t =&gt;
+(from p in t.GetProperties()
+where p.CanRead
+let getMethod = p.GetGetMethod()
+where getMethod != null &amp;&amp; getMethod.IsPublic
+select CreatePropertyAccessor(p)[Right 1].ToList()[Right 1];</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\cf1 using\cf3  System.Collections.Concurrent;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 Type\cf3 [] _primitivishTypes =\par
+        \{\par
+            \cf1 typeof\cf3 (\cf1 string\cf3 ),\par
+            \cf1 typeof\cf3 (\cf1 decimal\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 DateTime\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 Guid\cf3 )\par
+        \};\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt; _propertyAccessorsMap =\par
+            \cf1 new\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt;();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 var\cf3  lhsList = ((\cf4 IEnumerable\cf3 )lhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+                \cf1 var\cf3  rhsList = ((\cf4 IEnumerable\cf3 )rhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+\par
+                \cf1 if\cf3  (lhsList.Count != rhsList.Count)\par
+                \{\par
+                    \cf1 return\cf3  \cf1 false\cf3 ;\par
+                \}\par
+\par
+                \cf1 return\cf3\par
+                    lhsList\par
+                        .Zip(rhsList, (l, r) =&gt; \cf1 this\cf3 .Equals(l, r))\par
+                        .All(x =&gt; x);\par
+            \}\par
+\par
+            \cf1 return\cf3\par
+                GetPropertyAccessors(type)\par
+                    .All(getPropertyValue =&gt; \cf1 this\cf3 .Equals(getPropertyValue(lhs), getPropertyValue(rhs)));\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt; GetPropertyAccessors(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                _propertyAccessorsMap.GetOrAdd(\par
+                     type,\par
+                     t =&gt;\par
+                     (\cf1 from\cf3  p \cf1 in\cf3  t.GetProperties()\par
+                      \cf1 where\cf3  p.CanRead\par
+                      \cf1 let\cf3  getMethod = p.GetGetMethod()\par
+                      \cf1 where\cf3  getMethod != \cf1 null\cf3  &amp;&amp; getMethod.IsPublic\par
+                      \cf1 select\cf3  CreatePropertyAccessor(p)).ToList());\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsPrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  IsNonNullablePrimitivish(type) || IsNullablePrimitivish(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNonNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  type.IsPrimitive || _primitivishTypes.Contains(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                type.IsGenericType\par
+                &amp;&amp; type.GetGenericTypeDefinition() == \cf1 typeof\cf3 (\cf4 Nullable\cf3 &lt;&gt;)\par
+                &amp;&amp; IsNonNullablePrimitivish(type.GetGenericArguments()[0]);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\pard\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Now, on to the GetPropertyAccessors method. It needs to return an IEnumerable&lt;Func&lt;object, object&gt;&gt;. This will allow us to easily get the values of all the properties for a class.\par
+\par
+(Execute) We'll store the IEnumerable&lt;Func&lt;object, object&gt;&gt; in... you guessed it - a ConcurrentDictionary.\par
+(Continue) And getting the property accessors should look a little familiar by now.\par
+\par
+Now we just need to implement the CreatePropertyAccessor method.\par
+}
+</Notes>
+  </Step>
+  <Step Number="32">
+    <GhostKeyboardData>[GotoLine 5][End]
+using System.Reflection;
+using System.Linq.Expressions;[Pause 1][GotoLine 98][End][Pause 1]
+
+private Func&lt;object, object&gt; CreatePropertyAccessor(PropertyInfo property)
+{
+var objParameter = Expression.Parameter(typeof(object), "obj");
+
+Expression getPropertyValueExpression =
+Expression.Property(
+    Expression.Convert(
+    objParameter,
+property.DeclaringType),
+[Backspace 4]property);
+
+if (property.PropertyType.IsValueType)
+{
+getPropertyValueExpression = Expression.Convert(getPropertyValueExpression, typeof(object));[End][Down]
+
+var lambda = Expression.Lambda&lt;Func&lt;object, object&gt;&gt;(getPropertyValueExpression, objParameter);
+return lambda.Compile();</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red163\green21\blue21;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\cf1 using\cf3  System.Collections.Concurrent;\par
+\cf1 using\cf3  System.Reflection;\par
+\cf1 using\cf3  System.Linq.Expressions;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 Type\cf3 [] _primitivishTypes =\par
+        \{\par
+            \cf1 typeof\cf3 (\cf1 string\cf3 ),\par
+            \cf1 typeof\cf3 (\cf1 decimal\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 DateTime\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 Guid\cf3 )\par
+        \};\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt; _propertyAccessorsMap =\par
+            \cf1 new\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt;();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 var\cf3  lhsList = ((\cf4 IEnumerable\cf3 )lhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+                \cf1 var\cf3  rhsList = ((\cf4 IEnumerable\cf3 )rhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+\par
+                \cf1 if\cf3  (lhsList.Count != rhsList.Count)\par
+                \{\par
+                    \cf1 return\cf3  \cf1 false\cf3 ;\par
+                \}\par
+\par
+                \cf1 return\cf3\par
+                    lhsList\par
+                        .Zip(rhsList, (l, r) =&gt; \cf1 this\cf3 .Equals(l, r))\par
+                        .All(x =&gt; x);\par
+            \}\par
+\par
+            \cf1 return\cf3\par
+                GetPropertyAccessors(type)\par
+                    .All(getPropertyValue =&gt; \cf1 this\cf3 .Equals(getPropertyValue(lhs), getPropertyValue(rhs)));\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 throw\cf3  \cf1 new\cf3  \cf4 NotImplementedException\cf3 ();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt; GetPropertyAccessors(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                _propertyAccessorsMap.GetOrAdd(\par
+                     type,\par
+                     t =&gt;\par
+                     (\cf1 from\cf3  p \cf1 in\cf3  t.GetProperties()\par
+                      \cf1 where\cf3  p.CanRead\par
+                      \cf1 let\cf3  getMethod = p.GetGetMethod()\par
+                      \cf1 where\cf3  getMethod != \cf1 null\cf3  &amp;&amp; getMethod.IsPublic\par
+                      \cf1 select\cf3  CreatePropertyAccessor(p)).ToList());\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt; CreatePropertyAccessor(\cf4 PropertyInfo\cf3  property)\par
+        \{\par
+            \cf1 var\cf3  objParameter = \cf4 Expression\cf3 .Parameter(\cf1 typeof\cf3 (\cf1 object\cf3 ), \cf5 "obj"\cf3 );\par
+\par
+            \cf4 Expression\cf3  getPropertyValueExpression =\par
+                \cf4 Expression\cf3 .Property(\par
+                    \cf4 Expression\cf3 .Convert(\par
+                        objParameter,\par
+                        property.DeclaringType),\par
+                    property);\par
+\par
+            \cf1 if\cf3  (property.PropertyType.IsValueType)\par
+            \{\par
+                getPropertyValueExpression = \cf4 Expression\cf3 .Convert(getPropertyValueExpression, \cf1 typeof\cf3 (\cf1 object\cf3 ));\par
+            \}\par
+\par
+            \cf1 var\cf3  lambda = \cf4 Expression\cf3 .Lambda&lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;(getPropertyValueExpression, objParameter);\par
+            \cf1 return\cf3  lambda.Compile();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsPrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  IsNonNullablePrimitivish(type) || IsNullablePrimitivish(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNonNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  type.IsPrimitive || _primitivishTypes.Contains(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                type.IsGenericType\par
+                &amp;&amp; type.GetGenericTypeDefinition() == \cf1 typeof\cf3 (\cf4 Nullable\cf3 &lt;&gt;)\par
+                &amp;&amp; IsNonNullablePrimitivish(type.GetGenericArguments()[0]);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Finally, to tie it all together.\par
+\par
+We're creating a expression tree that accesses the value of a property for an object.\par
+\par
+PHEW! That was a tough! But now we can compare the values of the properties of arbitrary objects. (run the application as proof)\par
+}
+</Notes>
+  </Step>
+  <Step Number="33">
+    <GhostKeyboardData>[SelectText 84,13 0,36][Pause 1][Delete 1]if (obj == null)
+{
+return 0;[End][Down]
+
+var type = obj.GetType();
+
+if (IsPrimitivish(type))
+{
+return obj.GetHashCode();[End][Down]
+
+if (typeof(IEnumerable).IsAssignableFrom(type))
+{
+return this.GetAggregatedHashCode(type, ((IEnumerable)obj).Cast&lt;object&gt;());[End][Down]
+
+return this.GetAggregatedHashCode(type, GetPropertyAccessors(type).Select(getPropertyValue =&gt; getPropertyValue(obj)));</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red163\green21\blue21;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\cf1 using\cf3  System.Collections.Concurrent;\par
+\cf1 using\cf3  System.Reflection;\par
+\cf1 using\cf3  System.Linq.Expressions;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 Type\cf3 [] _primitivishTypes =\par
+        \{\par
+            \cf1 typeof\cf3 (\cf1 string\cf3 ),\par
+            \cf1 typeof\cf3 (\cf1 decimal\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 DateTime\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 Guid\cf3 )\par
+        \};\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt; _propertyAccessorsMap =\par
+            \cf1 new\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt;();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 var\cf3  lhsList = ((\cf4 IEnumerable\cf3 )lhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+                \cf1 var\cf3  rhsList = ((\cf4 IEnumerable\cf3 )rhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+\par
+                \cf1 if\cf3  (lhsList.Count != rhsList.Count)\par
+                \{\par
+                    \cf1 return\cf3  \cf1 false\cf3 ;\par
+                \}\par
+\par
+                \cf1 return\cf3\par
+                    lhsList\par
+                        .Zip(rhsList, (l, r) =&gt; \cf1 this\cf3 .Equals(l, r))\par
+                        .All(x =&gt; x);\par
+            \}\par
+\par
+            \cf1 return\cf3\par
+                GetPropertyAccessors(type)\par
+                    .All(getPropertyValue =&gt; \cf1 this\cf3 .Equals(getPropertyValue(lhs), getPropertyValue(rhs)));\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 if\cf3  (obj == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  0;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = obj.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  \f1 obj\f0 .GetHashCode();\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 return\cf3  \cf1 this\cf3 .GetAggregatedHashCode(type, ((\cf4 IEnumerable\cf3 )obj).Cast&lt;\cf1 object\cf3 &gt;());\par
+            \}\par
+\par
+            \cf1 return\cf3  \cf1 this\cf3 .GetAggregatedHashCode(type, GetPropertyAccessors(type).Select(getPropertyValue =&gt; getPropertyValue(obj)));\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt; GetPropertyAccessors(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                _propertyAccessorsMap.GetOrAdd(\par
+                     type,\par
+                     t =&gt;\par
+                     (\cf1 from\cf3  p \cf1 in\cf3  t.GetProperties()\par
+                      \cf1 where\cf3  p.CanRead\par
+                      \cf1 let\cf3  getMethod = p.GetGetMethod()\par
+                      \cf1 where\cf3  getMethod != \cf1 null\cf3  &amp;&amp; getMethod.IsPublic\par
+                      \cf1 select\cf3  CreatePropertyAccessor(p)).ToList());\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt; CreatePropertyAccessor(\cf4 PropertyInfo\cf3  property)\par
+        \{\par
+            \cf1 var\cf3  objParameter = \cf4 Expression\cf3 .Parameter(\cf1 typeof\cf3 (\cf1 object\cf3 ), \cf5 "obj"\cf3 );\par
+\par
+            \cf4 Expression\cf3  getPropertyValueExpression =\par
+                \cf4 Expression\cf3 .Property(\par
+                    \cf4 Expression\cf3 .Convert(\par
+                        objParameter,\par
+                        property.DeclaringType),\par
+                    property);\par
+\par
+            \cf1 if\cf3  (property.PropertyType.IsValueType)\par
+            \{\par
+                getPropertyValueExpression = \cf4 Expression\cf3 .Convert(getPropertyValueExpression, \cf1 typeof\cf3 (\cf1 object\cf3 ));\par
+            \}\par
+\par
+            \cf1 var\cf3  lambda = \cf4 Expression\cf3 .Lambda&lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;(getPropertyValueExpression, objParameter);\par
+            \cf1 return\cf3  lambda.Compile();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsPrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  IsNonNullablePrimitivish(type) || IsNullablePrimitivish(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNonNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  type.IsPrimitive || _primitivishTypes.Contains(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                type.IsGenericType\par
+                &amp;&amp; type.GetGenericTypeDefinition() == \cf1 typeof\cf3 (\cf4 Nullable\cf3 &lt;&gt;)\par
+                &amp;&amp; IsNonNullablePrimitivish(type.GetGenericArguments()[0]);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Let's implement GetHashCode - it's really similar to Equals.\par
+\par
+First do a null check, then a check against primitives. Then an enumerable check, and finally properties.\par
+}
+</Notes>
+  </Step>
+  <Step Number="34">
+    <GhostKeyboardData>[GotoLine 102][End][Pause 1]
+
+private int GetAggregatedHashCode(Type type, IEnumerable&lt;object&gt; values)
+{
+unchecked
+{
+return
+values.Aggregate(
+    type.FullName.GetHashCode(),
+(hashCode, value) =&gt; (hashCode * 397) ^ this.GetHashCode(value));</GhostKeyboardData>
+    <FinishedCode>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red0\green0\blue255;\red255\green255\blue255;\red0\green0\blue0;\red43\green145\blue175;\red163\green21\blue21;}
+\viewkind4\uc1\pard\cf1\highlight2\f0\fs22 using\cf3  System;\par
+\cf1 using\cf3  System.Linq;\par
+\cf1 using\cf3  System.Collections;\par
+\cf1 using\cf3  System.Collections.Generic;\par
+\cf1 using\cf3  System.Collections.Concurrent;\par
+\cf1 using\cf3  System.Reflection;\par
+\cf1 using\cf3  System.Linq.Expressions;\par
+\par
+\cf1 namespace\cf3  MetaDemo\par
+\{\par
+    \cf1 public\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 DeepEqualityComparer\cf3  : \cf4 IEqualityComparer\cf3\par
+    \{\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 DeepEqualityComparer\cf3  _instance = \cf1 new\cf3  \cf4 DeepEqualityComparer\cf3 ();\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 Type\cf3 [] _primitivishTypes =\par
+        \{\par
+            \cf1 typeof\cf3 (\cf1 string\cf3 ),\par
+            \cf1 typeof\cf3 (\cf1 decimal\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 DateTime\cf3 ),\par
+            \cf1 typeof\cf3 (\cf4 Guid\cf3 )\par
+        \};\par
+\par
+        \cf1 private\cf3  \cf1 readonly\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt; _propertyAccessorsMap =\par
+            \cf1 new\cf3  \cf4 ConcurrentDictionary\cf3 &lt;\cf4 Type\cf3 , \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;&gt;();\par
+\par
+        \cf1 private\cf3  DeepEqualityComparer()\par
+        \{\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3  Instance\par
+        \{\par
+            \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; GetGenericInstance&lt;T&gt;()\par
+        \{\par
+            \cf1 return\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;.Instance;\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 bool\cf3  Equals(\cf1 object\cf3  lhs, \cf1 object\cf3  rhs)\par
+        \{\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3  &amp;&amp; rhs == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  \cf1 true\cf3 ;\par
+            \}\par
+\par
+            \cf1 if\cf3  (lhs == \cf1 null\cf3\par
+                || rhs == \cf1 null\cf3\par
+                || lhs.GetType() != rhs.GetType())\par
+            \{\par
+                \cf1 return\cf3  \cf1 false\cf3 ;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = lhs.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  lhs.Equals(rhs);\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 var\cf3  lhsList = ((\cf4 IEnumerable\cf3 )lhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+                \cf1 var\cf3  rhsList = ((\cf4 IEnumerable\cf3 )rhs).Cast&lt;\cf1 object\cf3 &gt;().ToList();\par
+\par
+                \cf1 if\cf3  (lhsList.Count != rhsList.Count)\par
+                \{\par
+                    \cf1 return\cf3  \cf1 false\cf3 ;\par
+                \}\par
+\par
+                \cf1 return\cf3\par
+                    lhsList\par
+                        .Zip(rhsList, (l, r) =&gt; \cf1 this\cf3 .Equals(l, r))\par
+                        .All(x =&gt; x);\par
+            \}\par
+\par
+            \cf1 return\cf3\par
+                GetPropertyAccessors(type)\par
+                    .All(getPropertyValue =&gt; \cf1 this\cf3 .Equals(getPropertyValue(lhs), getPropertyValue(rhs)));\par
+        \}\par
+\par
+        \cf1 public\cf3  \cf1 int\cf3  GetHashCode(\cf1 object\cf3  obj)\par
+        \{\par
+            \cf1 if\cf3  (obj == \cf1 null\cf3 )\par
+            \{\par
+                \cf1 return\cf3  0;\par
+            \}\par
+\par
+            \cf1 var\cf3  type = obj.GetType();\par
+\par
+            \cf1 if\cf3  (IsPrimitivish(type))\par
+            \{\par
+                \cf1 return\cf3  \f1 obj\f0 .GetHashCode();\par
+            \}\par
+\par
+            \cf1 if\cf3  (\cf1 typeof\cf3 (\cf4 IEnumerable\cf3 ).IsAssignableFrom(type))\par
+            \{\par
+                \cf1 return\cf3  \cf1 this\cf3 .GetAggregatedHashCode(type, ((\cf4 IEnumerable\cf3 )obj).Cast&lt;\cf1 object\cf3 &gt;());\par
+            \}\par
+\par
+            \cf1 return\cf3  \cf1 this\cf3 .GetAggregatedHashCode(type, GetPropertyAccessors(type).Select(getPropertyValue =&gt; getPropertyValue(obj)));\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 int\cf3  GetAggregatedHashCode(\cf4 Type\cf3  type, \cf4 IEnumerable\cf3 &lt;\cf1 object\cf3 &gt; values)\par
+        \{\par
+            \cf1 unchecked\cf3\par
+            \{\par
+                \cf1 return\cf3\par
+                    values.Aggregate(\par
+                        type.FullName.GetHashCode(),\par
+                        (hashCode, value) =&gt; (hashCode * 397) ^ \cf1 this\cf3 .GetHashCode(value));\par
+            \}\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 IEnumerable\cf3 &lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt; GetPropertyAccessors(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                _propertyAccessorsMap.GetOrAdd(\par
+                     type,\par
+                     t =&gt;\par
+                     (\cf1 from\cf3  p \cf1 in\cf3  t.GetProperties()\par
+                      \cf1 where\cf3  p.CanRead\par
+                      \cf1 let\cf3  getMethod = p.GetGetMethod()\par
+                      \cf1 where\cf3  getMethod != \cf1 null\cf3  &amp;&amp; getMethod.IsPublic\par
+                      \cf1 select\cf3  CreatePropertyAccessor(p)).ToList());\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt; CreatePropertyAccessor(\cf4 PropertyInfo\cf3  property)\par
+        \{\par
+            \cf1 var\cf3  objParameter = \cf4 Expression\cf3 .Parameter(\cf1 typeof\cf3 (\cf1 object\cf3 ), \cf5 "obj"\cf3 );\par
+\par
+            \cf4 Expression\cf3  getPropertyValueExpression =\par
+                \cf4 Expression\cf3 .Property(\par
+                    \cf4 Expression\cf3 .Convert(\par
+                        objParameter,\par
+                        property.DeclaringType),\par
+                    property);\par
+\par
+            \cf1 if\cf3  (property.PropertyType.IsValueType)\par
+            \{\par
+                getPropertyValueExpression = \cf4 Expression\cf3 .Convert(getPropertyValueExpression, \cf1 typeof\cf3 (\cf1 object\cf3 ));\par
+            \}\par
+\par
+            \cf1 var\cf3  lambda = \cf4 Expression\cf3 .Lambda&lt;\cf4 Func\cf3 &lt;\cf1 object\cf3 , \cf1 object\cf3 &gt;&gt;(getPropertyValueExpression, objParameter);\par
+            \cf1 return\cf3  lambda.Compile();\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsPrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  IsNonNullablePrimitivish(type) || IsNullablePrimitivish(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNonNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3  type.IsPrimitive || _primitivishTypes.Contains(type);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 bool\cf3  IsNullablePrimitivish(\cf4 Type\cf3  type)\par
+        \{\par
+            \cf1 return\cf3\par
+                type.IsGenericType\par
+                &amp;&amp; type.GetGenericTypeDefinition() == \cf1 typeof\cf3 (\cf4 Nullable\cf3 &lt;&gt;)\par
+                &amp;&amp; IsNonNullablePrimitivish(type.GetGenericArguments()[0]);\par
+        \}\par
+\par
+        \cf1 private\cf3  \cf1 sealed\cf3  \cf1 class\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; : \cf4 IEqualityComparer\cf3 &lt;T&gt;\par
+        \{\par
+            \cf1 private\cf3  \cf1 static\cf3  \cf1 readonly\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt; _instance = \cf1 new\cf3  \cf4 GenericDeepEqualityComparer\cf3 &lt;T&gt;();\par
+\par
+            \cf1 private\cf3  GenericDeepEqualityComparer()\par
+            \{\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 static\cf3  \cf4 IEqualityComparer\cf3 &lt;T&gt; Instance\par
+            \{\par
+                \cf1 get\cf3  \{ \cf1 return\cf3  _instance; \}\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 bool\cf3  Equals(T lhs, T rhs)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.Equals(lhs, rhs);\par
+            \}\par
+\par
+            \cf1 public\cf3  \cf1 int\cf3  GetHashCode(T obj)\par
+            \{\par
+                \cf1 return\cf3  \cf4 DeepEqualityComparer\cf3 .Instance.GetHashCode(obj);\par
+            \}\par
+        \}\par
+    \}\par
+\}\cf0\highlight0\f1\fs24\par
+}
+</FinishedCode>
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 And there you have it. A fully-functional, deep property-comparing implementation of IEqualityComparer.\par
 }
 </Notes>
   </Step>
