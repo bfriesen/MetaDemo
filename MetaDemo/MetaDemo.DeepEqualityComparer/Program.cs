@@ -68,7 +68,7 @@ namespace MetaDemo
 
         private static void ShowEquals(Foo lhs, Foo rhs, string lhsLabel, string rhsLabel)
         {
-            var equals = Equals(lhs, rhs);
+            var equals = DeepEqualityComparer.Instance.Equals(lhs, rhs);
             Console.WriteLine("({0}, {1}): {2}", lhsLabel, rhsLabel, equals);
         }
 
