@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Demo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TargetApplicationTitle>DumpExtension - Microsoft Visual Studio</TargetApplicationTitle>
+  <InitialCode />
+  <Step Number="1">
+    <Notes>{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs24 Hello, and welcome to the "Dump Extension" portion of the talk!\par
+}
+</Notes>
+  </Step>
+</Demo>
