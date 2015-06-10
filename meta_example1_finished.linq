@@ -18,11 +18,14 @@ void Main() // Sneaky Reflection
 
 private string GetMiddleName(Customer customer)
 {
-    // Our requirements are to send the customer's first, middle, and last names
-    // to the InsertCustomer method. But the Customer class doesn't expose its
-    // Middle name. What do we do in this method???
+    string middleName; 
     
-    return null;
+    Type customerType = typeof(Customer);
+    FieldInfo middleNameField = customerType.GetField("_middleName", BindingFlags.NonPublic | BindingFlags.Instance);
+    
+    middleName = (string)middleNameField.GetValue(customer);
+    
+    return middleName;
 }
 
 // This is your code. It meets the business requirements of your customer.

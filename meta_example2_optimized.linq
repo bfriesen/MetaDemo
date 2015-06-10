@@ -23,12 +23,43 @@ void Main() // Assembly Scanning
 
 public class PacketFactory
 {
+    private readonly Dictionary<short, Func<object>> _packetFactoryMap = new Dictionary<short, Func<object>>();
+
+    public PacketFactory()
+    {
+        var packetTypes = typeof(Packet).Assembly.GetTypes().Where(t => !t.IsAbstract && typeof(Packet).IsAssignableFrom(t));
+        
+        foreach (var packetType in packetTypes)
+        {
+            var packet = (Packet)Activator.CreateInstance(packetType);
+            var packetNumber = packet.PacketNumber;
+            _packetFactoryMap.Add(packetNumber, GetPacketFactory(packetType));
+        }
+    }
+    
+    private Func<object> GetPacketFactory(Type packetType)
+    {
+        var ctor = packetType.GetConstructors().Single();
+        
+        var lambda = Expression.Lambda<Func<object>>(Expression.New(ctor));
+        return lambda.Compile();
+    }
+
     public Packet GetPacket(Stream stream)
     {
-        // We need to examine the first two bytes of the stream in order to determine
-        // the packet number of our packet.
-    
-        return null;
+        Packet packet;
+            
+        using (var reader = new BinaryReader(stream))
+        {
+            var packetNumber = reader.ReadInt16();
+            
+            var packetFactory = _packetFactoryMap[packetNumber];
+            packet = (Packet)packetFactory();
+            
+            packet.Load(reader);
+        }
+        
+        return packet;
     }
 }
 

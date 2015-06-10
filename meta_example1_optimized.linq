@@ -16,13 +16,16 @@ void Main() // Sneaky Reflection
     InsertCustomer(customer.FirstName, middleName, customer.LastName);
 }
 
+private Func<Customer, string> _getMiddleName;
+
+public UserQuery()
+{
+    // TODO: initialize _getMiddleName.
+}
+
 private string GetMiddleName(Customer customer)
 {
-    // Our requirements are to send the customer's first, middle, and last names
-    // to the InsertCustomer method. But the Customer class doesn't expose its
-    // Middle name. What do we do in this method???
-    
-    return null;
+    return _getMiddleName(customer);
 }
 
 // This is your code. It meets the business requirements of your customer.
